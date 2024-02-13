@@ -97,6 +97,9 @@ class SpineExport(object):
             
             childDir = directory
 
+            if "grouplayer" in child.type():
+                child.setPassThroughMode(False)
+
             if child.childNodes() and not self.mergePattern.search(child.name()):
                 newBone = bone
                 newSlot = slot
@@ -129,6 +132,7 @@ class SpineExport(object):
                             'name': newSlotName,
                             'bone': bone,
                             'attachment': None,
+                            'blend': 'normal',
                         }
                         self.spineSlots.append(newSlot)
 
@@ -166,11 +170,20 @@ class SpineExport(object):
                         'name': name,
                         'bone': bone,
                         'attachment': name,
+                        'blend': 'normal',
                     }
                     self.spineSlots.append(newSlot)
             else:
                 if not newSlot['attachment']:
                     newSlot['attachment'] = name
+
+            # Found a blend mode
+            if child.blendingMode() == 'multiply':
+                newSlot['blend'] = 'multiply'
+            if child.blendingMode() == 'add':
+                newSlot['blend'] = 'additive'
+            if child.blendingMode() == 'screen':
+                newSlot['blend'] = 'screen'
 
             rect = child.bounds()
             slotName = newSlot['name']
